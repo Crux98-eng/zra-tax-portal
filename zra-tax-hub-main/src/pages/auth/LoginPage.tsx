@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 
-const loginSchema = z.object({
-  tpinOrEmail: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+// Base URL configuration
+const BASE_URL = "http://16.171.255.95:8080";
 
+const loginSchema = z.object({
+  tpinOrEmail: z.string().min(1, "Email is required").email("Invalid email format"),
+  password: z.string().min(1, "Password is required").min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -27,42 +29,66 @@ const LoginPage = () => {
     defaultValues: {
       tpinOrEmail: "",
       password: "",
-     
     },
   });
-   
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    console.log("\nthis is my data ====>",data,"\n")
+    console.log("\nLogin data ====>", data, "\n");
 
-    //  API call
     try {
-      
-      const response = await fetch("/api/v1/auth/login", {
+      const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {
         method: "POST",
-         headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify({
-                tpinOrEmail: data.tpinOrEmail,
-                password: data.password,
-                mafCode:''
-}),
-      })
-      console.log("the returned response is :",response)
-      if (!response.ok) throw Error("something happened")
+          tpinOrEmail: data.tpinOrEmail,
+          password: data.password,
+          mafCode: ''
+        }),
+      });
+
+      console.log("Response status:", response.status);
+      
       const result = await response.json();
-      console.log("\nreturned data is  : ", result, " \n")
+      console.log("\nBackend response:", result, "\n");
+
+      if (!response.ok) {
+        // Extract error message from backend response
+        const errorMessage = result.message || result.error || "Login failed. Please try again.";
+        throw new Error(errorMessage);
+      }
+
+      // Login successful
       toast.success("Login successful!");
-    } catch (err) {
-      console.error("login failed with ", err)
+      
+      // Store token if available
+      if (result.token || result.accessToken) {
+        localStorage.setItem("authToken", result.token || result.accessToken);
+        
+        // Store user data if available
+        if (result.user) {
+          localStorage.setItem("userData", JSON.stringify(result.user));
+        }
+      }
+
+      // Navigate to dashboard after successful login
+      navigate("/dashboard");
+
+    } catch (error) {
+      console.error("Login failed:", error);
+      
+      // Show actual backend error message
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Login failed. Please check your credentials and try again.");
+      }
     } finally {
-      setTimeout(() => {
-
-        //navigate("/dashboard");
-        setIsLoading(false);
-      }, 1000);
+      setIsLoading(false);
     }
-
   };
 
   return (
@@ -86,7 +112,12 @@ const LoginPage = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type='email' placeholder="Enter your email" {...field} />
+                        <Input 
+                          type="email" 
+                          placeholder="Enter your email" 
+                          {...field} 
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -99,7 +130,12 @@ const LoginPage = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter your password" {...field} />
+                        <Input 
+                          type="password" 
+                          placeholder="Enter your password" 
+                          {...field} 
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
