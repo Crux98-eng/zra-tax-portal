@@ -122,10 +122,9 @@ const RegisterPage = () => {
 
   });
 
-
   const onSubmit = async (data: any) => {
     setIsLoading(true);
-console.log("\nthis is my data ====>",data,"\n")
+    console.log("\nthis is my data ====>",data,"\n")
 
     const endpoint =
       accountType === "individual"
@@ -133,25 +132,37 @@ console.log("\nthis is my data ====>",data,"\n")
         : `http://16.171.255.95:8080/api/v1/auth/register/business`
 
     try {
-      // console.log("Payload:", JSON.stringify(data, null, 2));
-
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-           "Accept": "application/json",
-         },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify(data),
       });
-       console.log('response :===> ',response)
-      if (!response.ok) throw new Error("Request failed");
-
+      
+      console.log('response :===> ', response);
+      
       const result = await response.json();
+      
+      if (!response.ok) {
+        // Extract error message from backend response
+        const errorMessage = result.message || result.error || "Registration failed";
+        throw new Error(errorMessage);
+      }
+      
       console.log("Response:", result);
       toast.success("Registration successful!");
       navigate("/auth/login");
     } catch (error) {
       console.log("Error:", error);
-      toast.error("Something went wrong! Please try again.");
+      
+      // Show the actual error message from backend or the error itself
+      if (error instanceof Error) {
+        toast.error(error.message || "Something went wrong! Please try again.");
+      } else {
+        toast.error("Something went wrong! Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
