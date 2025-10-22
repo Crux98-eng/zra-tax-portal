@@ -13,6 +13,7 @@ import Header from "@/components/layout/Header";
 const loginSchema = z.object({
   tpinOrEmail: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -26,28 +27,28 @@ const LoginPage = () => {
     defaultValues: {
       tpinOrEmail: "",
       password: "",
+     
     },
   });
-   const url = "http://16.171.255.95:8080";
+   
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-console.log("\nthis is my data ====>",data,"\n")
-const query = new URLSearchParams({
-  tpinOrEmail: data.tpinOrEmail,
-  password: data.password,
-}).toString();
-    // Simulate API call
+    console.log("\nthis is my data ====>",data,"\n")
+
+    //  API call
     try {
       
-      const response = await fetch(`/api/v1/auth/login?${query}`, {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json'
-          
-        },
-        
+      const response = await fetch("/api/v1/auth/login", {
+        method: "POST",
+         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+                tpinOrEmail: data.tpinOrEmail,
+                password: data.password,
+                mafCode:''
+}),
       })
+      console.log("the returned response is :",response)
       if (!response.ok) throw Error("something happened")
       const result = await response.json();
       console.log("\nreturned data is  : ", result, " \n")
