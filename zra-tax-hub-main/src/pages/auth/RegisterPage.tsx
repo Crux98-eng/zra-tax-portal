@@ -129,8 +129,8 @@ console.log("\nthis is my data ====>",data,"\n")
 
     const endpoint =
       accountType === "individual"
-        ? `/api/v1/auth/register/individual`
-        : `/api/v1/auth/register/business`
+        ? `http://16.171.255.95:8080/api/v1/auth/register/individual`
+        : `http://16.171.255.95:8080/api/v1/auth/register/business`
 
     try {
       // console.log("Payload:", JSON.stringify(data, null, 2));
