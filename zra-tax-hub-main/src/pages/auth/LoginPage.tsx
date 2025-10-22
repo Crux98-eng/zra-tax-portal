@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 
 const loginSchema = z.object({
-  tpin: z.string().min(10, "TPIN must be at least 10 characters").max(20, "TPIN must be at most 20 characters"),
+  tpinOrEmail: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -24,20 +24,44 @@ const LoginPage = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      tpin: "",
+      tpinOrEmail: "",
       password: "",
     },
   });
+   const url = "http://16.171.255.95:8080";
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    
+console.log("\nthis is my data ====>",data,"\n")
+const query = new URLSearchParams({
+  tpinOrEmail: data.tpinOrEmail,
+  password: data.password,
+}).toString();
     // Simulate API call
-    setTimeout(() => {
+    try {
+      
+      const response = await fetch(`/api/v1/auth/login?${query}`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+          
+        },
+        
+      })
+      if (!response.ok) throw Error("something happened")
+      const result = await response.json();
+      console.log("\nreturned data is  : ", result, " \n")
       toast.success("Login successful!");
-      navigate("/dashboard");
-      setIsLoading(false);
-    }, 1000);
+    } catch (err) {
+      console.error("login failed with ", err)
+    } finally {
+      setTimeout(() => {
+
+        //navigate("/dashboard");
+        setIsLoading(false);
+      }, 1000);
+    }
+
   };
 
   return (
@@ -48,7 +72,7 @@ const LoginPage = () => {
           <CardHeader>
             <CardTitle className="text-2xl">Sign In</CardTitle>
             <CardDescription>
-              Enter your TPIN and password to access your account
+              Enter your Email and password to access your account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -56,12 +80,12 @@ const LoginPage = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="tpin"
+                  name="tpinOrEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>TPIN</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your TPIN" {...field} />
+                        <Input type='email' placeholder="Enter your email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
