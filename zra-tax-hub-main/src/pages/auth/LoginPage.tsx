@@ -34,7 +34,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    console.log("\nLogin data ====>", data, "\n");
+    
 
     try {
       const response = await fetch(`${BASE_URL}/api/v1/auth/login`, {
@@ -50,10 +50,9 @@ const LoginPage = () => {
         }),
       });
 
-      console.log("Response status:", response.status);
+     
       
       const result = await response.json();
-      console.log("\nBackend response:", result, "\n");
 
       if (!response.ok) {
         // Extract error message from backend response
@@ -63,15 +62,15 @@ const LoginPage = () => {
 
       // Login successful
       toast.success("Login successful!");
-      
+       
       // Store token if available
-      if (result.token || result.accessToken) {
-        localStorage.setItem("authToken", result.token || result.accessToken);
-        
+      if (result.data.token || result.data.accessToken) {
+        localStorage.setItem("authToken", result.data.token || result.data.accessToken);
+        // console.log("user is ==>",result.user)
         // Store user data if available
-        if (result.user) {
-          localStorage.setItem("userData", JSON.stringify(result.user));
-        }
+        //console.log("user is ==>",result.data.user)
+          localStorage.setItem("userData", JSON.stringify(result.data.user));
+        
       }
 
       // Navigate to dashboard after successful login

@@ -2,10 +2,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { User, Mail, Phone, MapPin, Building, CheckCircle, Download } from "lucide-react";
+import { User, Mail, Phone, MapPin, Building, CheckCircle, Download, LogOut } from "lucide-react";
 import Header from "@/components/layout/Header";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const ProfilePage = () => {
+ const[userProfile,setUser]=useState(null)
+
+const navigation = useNavigate()
+  const handleLogOut = () => {
+  localStorage.removeItem("userData");
+  navigation("/");
+};
+
+
+useEffect(() => {
+  const storedData = localStorage.getItem("userData");
+  //console.log("local data is ==>",storedData)
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData);
+      console.log("Loaded user data:", parsedData);
+      setUser(parsedData);
+    } catch (err) {
+      console.error("Failed to parse user data:", err);
+    }
+  }
+
+}, [1000]);
+ 
+ 
+
   return (
     <div className="min-h-screen bg-secondary/30">
       <Header />
@@ -15,7 +43,7 @@ const ProfilePage = () => {
           <h1 className="text-3xl font-bold mb-2">Profile & Compliance</h1>
           <p className="text-muted-foreground">Manage your account and view compliance status</p>
         </div>
-
+     
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Profile Information */}
           <div className="lg:col-span-2 space-y-6">
@@ -29,28 +57,28 @@ const ProfilePage = () => {
                   <User className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Full Name</p>
-                    <p className="font-medium">John Doe</p>
+                    <p className="font-medium">{userProfile? userProfile.firstName : 'loading...'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50">
                   <Building className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">TPIN</p>
-                    <p className="font-medium">1234567890</p>
+                    <p className="font-medium">{userProfile? userProfile.tpin : 'loading...'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50">
                   <Mail className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">john.doe@example.com</p>
+                    <p className="font-medium">{userProfile? userProfile.email : 'loading...'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50">
                   <Phone className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">+260 97 1234567</p>
+                    <p className="font-medium">{userProfile? userProfile.phoneNumber : 'loading'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 rounded-lg bg-secondary/50">
@@ -150,6 +178,10 @@ const ProfilePage = () => {
               </CardContent>
             </Card>
           </div>
+          <Button onClick={handleLogOut} className="w-40 bg-red-600">
+            <LogOut  className="h-4 w-4 mr-2"/>
+            logout
+            </Button>
         </div>
       </main>
     </div>

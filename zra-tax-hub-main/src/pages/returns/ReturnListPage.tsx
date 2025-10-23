@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Plus } from "lucide-react";
 import Header from "@/components/layout/Header";
-
+  
 const ReturnListPage = () => {
+const naviagation = useNavigate();
   const returns = [
     { id: 1, type: "VAT Return", period: "Q4 2024", status: "Filed", amount: "ZMW 15,000", dueDate: "2025-01-21", filedDate: "2025-01-15" },
     { id: 2, type: "PAYE Return", period: "December 2024", status: "Filed", amount: "ZMW 8,500", dueDate: "2025-01-14", filedDate: "2025-01-10" },
@@ -25,7 +26,7 @@ const ReturnListPage = () => {
             <p className="text-muted-foreground">Manage and file your tax returns</p>
           </div>
           <Button asChild size="lg">
-            <Link to="/returns/new">
+            <Link to="/fileReturnPage">
               <Plus className="h-5 w-5 mr-2" />
               File New Return
             </Link>
