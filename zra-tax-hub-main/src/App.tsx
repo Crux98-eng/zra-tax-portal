@@ -13,7 +13,8 @@ import InvoiceListPage from "./pages/invoices/InvoiceListPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChatPage from "./pages/ChatPage";
 import NotFound from "./pages/NotFound";
-import FileReturnPage from "./pages/returns/fileReturnPage"
+import FileReturnPage from "./pages/returns/fileReturnPage";
+import ReturnDetailPage from "@/pages/returns/ReturnDetailPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/fileReturnPage" element={<FileReturnPage />} />
+         <Route path="/returns/:id" element={<ReturnDetailPage />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

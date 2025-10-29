@@ -8,20 +8,28 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const ProfilePage = () => {
+  //state variables
  const[userProfile,setUser]=useState(null)
 
+
+
+ //navigation
 const navigation = useNavigate()
   const handleLogOut = () => {
   localStorage.removeItem("userData");
   navigation("/");
 };
 
+ 
 
 useEffect(() => {
   const storedData = localStorage.getItem("userData");
-  //console.log("local data is ==>",storedData)
+
+ 
   if (storedData) {
+    
     try {
+
       const parsedData = JSON.parse(storedData);
      // console.log("Loaded user data:", parsedData);
       setUser(parsedData);
@@ -30,7 +38,8 @@ useEffect(() => {
     }
   }
 
-}, [1000]);
+}, [100]);
+
  
  
 

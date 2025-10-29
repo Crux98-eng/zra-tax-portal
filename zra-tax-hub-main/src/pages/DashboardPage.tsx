@@ -25,12 +25,12 @@ const DashboardPage = () => {
     const storedToken = localStorage.getItem("authToken");
 
     if (storedToken) {
-      setToken(storedToken);
-      console.log("\n✅ Token loaded:", storedToken, "\n");
+    
+     //console.log("\n✅ Token loaded:", storedToken, "\n");
 
       // ✅ pass token directly, don’t rely on state
       getCompliance(storedToken);
-      getAllCompliance(storedToken);
+      
     }
   }, []);
 
@@ -62,37 +62,7 @@ const DashboardPage = () => {
   };
 
 
-  const getAllCompliance = async (tokens) => {
-    if (!tokens) {
-      console.warn("⚠️ No token available — skipping compliance fetch.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        "http://16.171.255.95:8080/api/v1/compliance/score",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${tokens}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        console.warn(`⚠️ Compliance score fetch failed: ${response.status}`);
-        return;
-      }
-
-      // ✅ This is the key: await the JSON promise
-      const data = await response.json();
-      setAllScore(data);
-      console.log(" Parsed compliance score:", data);
-
-    } catch (error) {
-      console.error("❌ Network or runtime error in getAllCompliance:", error.message);
-    }
-  };
+  
 
 
   return (
