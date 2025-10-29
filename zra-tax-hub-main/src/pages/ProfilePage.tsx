@@ -23,7 +23,7 @@ useEffect(() => {
   if (storedData) {
     try {
       const parsedData = JSON.parse(storedData);
-      console.log("Loaded user data:", parsedData);
+     // console.log("Loaded user data:", parsedData);
       setUser(parsedData);
     } catch (err) {
       console.error("Failed to parse user data:", err);

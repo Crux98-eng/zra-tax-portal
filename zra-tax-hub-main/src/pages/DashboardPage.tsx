@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
 import SummaryCard from "@/components/dashboard/SummaryCard";
 import { Link } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
 const DashboardPage = () => {
   const recentReturns = [
     { id: 1, type: "VAT Return", period: "Q4 2024", status: "Filed", date: "2025-01-15" },
@@ -18,11 +18,87 @@ const DashboardPage = () => {
     { id: 1, type: "VAT Payment", amount: "ZMW 15,000", status: "Completed", date: "2025-01-15" },
     { id: 2, type: "PAYE Payment", amount: "ZMW 8,500", status: "Completed", date: "2025-01-10" },
   ];
+  const [token, setToken] = useState("");
+  const [taxData, setTaxData] = useState(null);
+  const [scores, setAllScore] = useState(null);
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+
+    if (storedToken) {
+      setToken(storedToken);
+      console.log("\n✅ Token loaded:", storedToken, "\n");
+
+      // ✅ pass token directly, don’t rely on state
+      getCompliance(storedToken);
+      getAllCompliance(storedToken);
+    }
+  }, []);
+
+  const getCompliance = async (tokens) => {
+    if (!token) {
+      console.log("\nno token yet 1");
+    }
+    try {
+      const response = await fetch("http://16.171.255.95:8080/api/v1/compliance/stats", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokens}`,
+        },
+
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTaxData(data);
+        //  console.log("\ndata filing is : ==> ",data)
+      }
+      // }else{
+      //   console.error("something has happened while loading the score")
+      // }
+    } catch (error) {
+      console.error(error.message)
+
+    }
+  };
+
+
+  const getAllCompliance = async (tokens) => {
+    if (!tokens) {
+      console.warn("⚠️ No token available — skipping compliance fetch.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://16.171.255.95:8080/api/v1/compliance/score",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${tokens}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.warn(`⚠️ Compliance score fetch failed: ${response.status}`);
+        return;
+      }
+
+      // ✅ This is the key: await the JSON promise
+      const data = await response.json();
+      setAllScore(data);
+      console.log(" Parsed compliance score:", data);
+
+    } catch (error) {
+      console.error("❌ Network or runtime error in getAllCompliance:", error.message);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-secondary/30">
       <Header />
-      
+
       <main className="container py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -54,7 +130,7 @@ const DashboardPage = () => {
           />
           <SummaryCard
             title="Compliance Score"
-            value="98%"
+            value={taxData ? taxData.data.accuracyScore + "%" : 0}
             description="Excellent standing"
             icon={CheckCircle}
             trend={{ value: "+3%", positive: true }}
@@ -82,9 +158,9 @@ const DashboardPage = () => {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span>Compliance Score</span>
-                  <span className="font-medium">98%</span>
+                  <span className="font-medium">{taxData ? taxData.data.accuracyScore : 'loading...'} %</span>
                 </div>
-                <Progress value={98} className="h-2" />
+                <Progress value={taxData ? taxData.data.accuracyScore : 0} className="h-2" />
               </div>
               <Button asChild>
                 <Link to="/profile">Request TCC</Link>
@@ -172,7 +248,7 @@ const DashboardPage = () => {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Button asChild className="h-auto flex-col gap-2 py-4">
-                <Link to="/returns/new">
+                <Link to="/fileReturnPage">
                   <FileText className="h-6 w-6" />
                   <span>File New Return</span>
                 </Link>

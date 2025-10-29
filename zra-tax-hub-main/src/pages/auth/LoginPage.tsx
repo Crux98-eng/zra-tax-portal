@@ -66,6 +66,7 @@ const LoginPage = () => {
       // Store token if available
       if (result.data.token || result.data.accessToken) {
         localStorage.setItem("authToken", result.data.token || result.data.accessToken);
+        console.log('\n\n',result.data.accessToken,'\n\n')
         // console.log("user is ==>",result.user)
         // Store user data if available
         //console.log("user is ==>",result.data.user)
